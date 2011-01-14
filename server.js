@@ -39,9 +39,15 @@ io.on('connection', function(client) {
     client.broadcast({ announcement: client.sessionId + ' connected' })
   
     client.on('message', function(message) {
-        var msg = { message: [client.sessionId, message] }
+        console.log(message.toString())
+        var vals = parseMsg(message)
+        var msg = { message: [ [vals[0]
+                               , ' ('
+                               , client.sessionId
+                               , ')'].join('')
+                             , vals[1] ]}
         buffer.push(msg)
-        if (buffer.length > 15) buffer.shift()
+        if (buffer.length > 25) buffer.shift()
         client.broadcast(msg)
     })
 
@@ -49,5 +55,9 @@ io.on('connection', function(client) {
         client.broadcast( { announcement: client.sessionId + ' disconnected' } )
     })
 })
+
+function parseMsg(message) {
+    return message.split(':')
+}
 
 console.log( "Express server listening on port %d", app.address().port )
