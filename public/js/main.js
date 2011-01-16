@@ -8,7 +8,8 @@ function message(obj) {
         el.innerHTML = '<em>' + esc(obj.announcement) + '</em>'
     }
     else if ('message' in obj) {
-        el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1])
+        var vals = obj.message
+        el.innerHTML = '<b>' + esc(vals.userName) + ':</b> ' + esc(vals.message)
     }
     document.getElementById('chat').appendChild(el)
     document.getElementById('chat').scrollTop = 1000000
@@ -18,9 +19,9 @@ function send() {
     var val = document.getElementById('text').value
       , nameVal = document.getElementById('username').value
       , userName = (nameVal === '') ? 'Default' : nameVal
-    socket.send( [userName
-                 , val].join(":") )
-    message( { message: ['you', val] } )
+
+    socket.send({ event : 'user_message', message : {'userName' : userName, 'message' : val} })
+    message({ event : 'user_message', message : {'message': val, userName: 'you' } })
     document.getElementById('text').value = ''
 }
 
@@ -31,6 +32,11 @@ function esc(msg) {
 var socket = new io.Socket(null, {port: 8080, rememberTransport: false})
 socket.connect()
 socket.on('message', function(obj) {
+    if (obj.event === 'user_error_duplicate') {
+        message(obj)
+        handleUserName()
+        return
+    }
     if ('buffer' in obj) {
         document.getElementById('form').style.display='block'
         document.getElementById('chat').innerHTML = ''
@@ -44,6 +50,9 @@ socket.on('message', function(obj) {
     }
 })
 
-document.addEventListener( "DOMContentLoaded", function() {
-    document.getElementById('username').value = promptUserName()
-}, false)
+function handleUserName() {
+    var input = document.getElementById('username').value = promptUserName()
+    socket.send({ event : 'user_connected', userName : input, announcement : input + " entered the chat room." })
+}
+
+document.addEventListener( "DOMContentLoaded", handleUserName, false)
