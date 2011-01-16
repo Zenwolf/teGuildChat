@@ -33,31 +33,68 @@ app.listen(8080);
 
 var io = io.listen(app)
   , buffer = []
+  , users = {} // username to session id mapping
+  , sessions = {} // session id to data mapping
+  , handlers = {
+        'user_connected' : function(client, msg) {
+            var userName = msg.userName
+            // if the username is already taken
+            if (users[userName+'']) {
+                client.send({ event : 'user_error_duplicate', announcement : "user name " + userName + " is already taken. Please choose another."})
+                return
+            }
+            sessions[client.sessionId+''].userName = userName // map session id to username
+            users[userName+''] = client.sessionId+'' // map username to session id
+            var notice = { event : 'system_message', announcement : userName + " entered the chat room." }
+            history(notice)
+            client.broadcast(notice)
+        }
+
+        ,'user_message' : function(client, msg) {
+            var vals = msg.message
+              , userName = vals.userName
+              , userMsg = vals.message
+              , output = { event : 'user_message', 'message' : {userName : userName, message : userMsg} }
+            history(output)
+            client.broadcast(output)
+        }
+        
+        ,'user_disconnected' : function(client, msg) {
+            var userName = msg.userName
+              , notice = { event : 'system_message', announcement : userName + " left the chat room." }
+            history(notice)
+            client.broadcast(notice)
+        }
+    }
+
+function history(obj) {
+    buffer.push(obj)
+    if (buffer.length > 25) buffer.shift()
+}
 
 io.on('connection', function(client) {
-    client.send( { buffer: buffer } )
-    client.broadcast({ announcement: client.sessionId + ' connected' })
-  
+    sessions[client.sessionId+''] = {} // create the data object for this session
+    client.send({ event : 'user_message', 'buffer' : buffer })
+    var notice = { event : 'system_message', announcement: client.sessionId + ' connected' }
+    history(notice)
+    client.broadcast(notice)
+
     client.on('message', function(message) {
-        console.log(message.toString())
-        var vals = parseMsg(message)
-        var msg = { message: [ [vals[0]
-                               , ' ('
-                               , client.sessionId
-                               , ')'].join('')
-                             , vals[1] ]}
-        buffer.push(msg)
-        if (buffer.length > 25) buffer.shift()
-        client.broadcast(msg)
+        console.log(message)
+        handlers[message.event](client, message)
     })
 
     client.on('disconnect', function() {
-        client.broadcast( { announcement: client.sessionId + ' disconnected' } )
+        var username = sessions[client.sessionId+''].userName
+          , sid = client.sessionId
+          , notice = { event : 'system_message', userName : username, announcement: sid + ' disconnected' }
+        
+        handlers['user_disconnected'](client, { userName : username })
+        history(notice)
+        client.broadcast(notice)
+        delete users[username]
+        delete sessions[sid]
     })
 })
-
-function parseMsg(message) {
-    return message.split(':')
-}
 
 console.log( "Express server listening on port %d", app.address().port )
