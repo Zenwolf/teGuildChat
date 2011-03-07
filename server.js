@@ -1,17 +1,23 @@
 // Dependencies
 var express = require('express')
-  , app = module.exports = express.createServer()
+  , connect = require('connect')
   , io = require('socket.io')
   , http = require('http')
 
-// Configuration
+// create the app server
+var pub = __dirname + '/public'
+  , app = express.createServer(
+        express.static( pub )
+    )
+
+// Configure app
 app.configure( function() {
     app.set( 'views', __dirname + '/views' )
     app.set( 'view engine', 'jade' )
-    app.use( express.bodyDecoder() )
+    app.use( express.bodyParser() )
     app.use( express.methodOverride() )
-    app.use( app.router )
-    app.use( express.staticProvider(__dirname + '/public') )
+    app.use( express.cookieParser() )
+//    app.use( app.router )
 })
 
 app.configure('development', function() {
