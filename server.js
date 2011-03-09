@@ -4,7 +4,6 @@ var express = require('express')
   , io = require('socket.io')
   , http = require('http')
 
-console.log ( "Loaded modules!" )
 
 // create the app server
 var pub = __dirname + '/public'
@@ -12,7 +11,6 @@ var pub = __dirname + '/public'
         express.static( pub )
     )
 
-console.log( "Created app server!" )
 
 // Configure app
 app.configure( function() {
@@ -24,7 +22,6 @@ app.configure( function() {
 //    app.use( app.router )
 })
 
-console.log( "Configured app server!" )
 
 app.configure('development', function() {
     app.use( express.errorHandler( { dumpExceptions: true, showStack: true } )) 
@@ -37,11 +34,11 @@ app.configure('production', function() {
 // Routes
 app.get('/', function(req, res) {
     res.render('index', {
-        locals: { title: 'Express' }
+        locals: { title: 'TE Guild chat' }
     })
 })
 
-var port = process.env.PORT || 8001
+var port = process.env.PORT || 8080
 app.listen( port )
 
 var io = io.listen(app)
