@@ -4,11 +4,15 @@ var express = require('express')
   , io = require('socket.io')
   , http = require('http')
 
+console.log ( "Loaded modules!" )
+
 // create the app server
 var pub = __dirname + '/public'
   , app = express.createServer(
         express.static( pub )
     )
+
+console.log( "Created app server!" )
 
 // Configure app
 app.configure( function() {
@@ -19,6 +23,8 @@ app.configure( function() {
     app.use( express.cookieParser() )
 //    app.use( app.router )
 })
+
+console.log( "Configured app server!" )
 
 app.configure('development', function() {
     app.use( express.errorHandler( { dumpExceptions: true, showStack: true } )) 
@@ -35,7 +41,7 @@ app.get('/', function(req, res) {
     })
 })
 
-app.listen(8080);
+app.listen(8080)
 
 var io = io.listen(app)
   , buffer = []
@@ -103,4 +109,4 @@ io.on('connection', function(client) {
     })
 })
 
-console.log( "Express server listening on port %d", app.address().port )
+// console.log( "Express server listening on port %d", app.address().port )
