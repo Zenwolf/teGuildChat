@@ -38,7 +38,7 @@ app.get('/', function(req, res) {
     })
 })
 
-var port = process.env.PORT || 8080
+var port = process.env.PORT || 80
 app.listen( port )
 
 var io = io.listen(app)
@@ -107,4 +107,4 @@ io.on('connection', function(client) {
     })
 })
 
-console.log( "Express server listening on port %d", app.address().port )
+console.log( "Server listening on port %d", app.address().port )

@@ -29,7 +29,7 @@ function esc(msg) {
   return String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-var socket = new io.Socket(null, {port: 8080, rememberTransport: false})
+var socket = new io.Socket(null, {port: 80, rememberTransport: false})
 socket.connect()
 socket.on('message', function(obj) {
     if (obj.event === 'user_error_duplicate') {
