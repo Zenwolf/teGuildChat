@@ -1,3 +1,5 @@
+var socket = undefined
+
 function promptUserName() {
     return prompt("Please enter a user name")
 }
@@ -29,30 +31,35 @@ function esc(msg) {
   return String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-var socket = new io.Socket(null, {port: 80, rememberTransport: false})
-socket.connect()
-socket.on('message', function(obj) {
-    if (obj.event === 'user_error_duplicate') {
-        message(obj)
-        handleUserName()
-        return
-    }
-    if ('buffer' in obj) {
-        document.getElementById('form').style.display='block'
-        document.getElementById('chat').innerHTML = ''
-    
-        for (var i in obj.buffer) {
-            message(obj.buffer[i])
-        }
-    }
-    else {
-        message(obj)
-    }
-})
-
 function handleUserName() {
     var input = document.getElementById('username').value = promptUserName()
     socket.send({ event : 'user_connected', userName : input, announcement : input + " entered the chat room." })
 }
 
-document.addEventListener( "DOMContentLoaded", handleUserName, false)
+function setUp() {
+    var port = document.getElementById( 'tePort' ).value
+    socket = new io.Socket(null, {port: parseInt( port, 10 ) || 80, rememberTransport: false})
+    socket.connect()
+    socket.on('message', function(obj) {
+        if (obj.event === 'user_error_duplicate') {
+            message(obj)
+            handleUserName()
+            return
+        }
+        if ('buffer' in obj) {
+            document.getElementById('form').style.display='block'
+            document.getElementById('chat').innerHTML = ''
+        
+            for (var i in obj.buffer) {
+                message(obj.buffer[i])
+            }
+        }
+        else {
+            message(obj)
+        }
+    })
+
+    handleUserName()
+}
+
+document.addEventListener( "DOMContentLoaded", setUp, false)

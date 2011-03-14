@@ -1,110 +1,72 @@
-// Dependencies
-var express = require('express')
-  , connect = require('connect')
-  , io = require('socket.io')
-  , http = require('http')
+/*
+ * Dependencies
+ *
+ */
+ 
+var config   = require( './config' )
+  , io       = require( 'socket.io' )
+  , http     = require( 'http' )
+  , app      = require( './app.js' )
 
 
-// create the app server
-var pub = __dirname + '/public'
-  , app = express.createServer(
-        express.static( pub )
-    )
+/*
+ * Load server config.
+ *
+ */
+ // TODO use config module
+var devCfg = { port      : process.env.PORT || 8080
+             , authUrl   : 'http://localhost:8080/auth'
+             , verifyUrl : 'http://localhost:8080/verify'
+             , dbHost    : 'http://localhost/db'
+             , viewDir   : __dirname + '/views'
+             , pubDir    : __dirname + '/public'
+             }
 
 
-// Configure app
-app.configure( function() {
-    app.set( 'views', __dirname + '/views' )
-    app.set( 'view engine', 'jade' )
-    app.use( express.bodyParser() )
-    app.use( express.methodOverride() )
-    app.use( express.cookieParser() )
-//    app.use( app.router )
-})
+var serverCfg = { port      : process.env.PORT || 80
+                , authUrl   : 'http://zenwolf.no.de/auth'
+                , verifyUrl : 'http://zenwolf.no.de/verify'
+                , dbHost    : 'http://localhost/db'
+                , viewDir   : __dirname + '/views'
+                , pubDir    : __dirname + '/public'
+                }
+
+ 
+/*
+ * Create the application config from server settings and whatever else.
+ * Flexible, and lets us pick up new values from server at runtime.
+ * // TODO Using dev config for now.
+ */
+var appCfg = { authUrl   : devCfg.authUrl
+             , verifyUrl : devCfg.verifyUrl
+             , viewDir   : devCfg.viewDir
+             , pubDir    : devCfg.pubDir
+             , dbHost    : devCfg.dbHost
+             , port      : devCfg.port
+             }
+
+// Configure the app.
+// TODO add app update config functionality???
+app.configure( appCfg )
 
 
-app.configure('development', function() {
-    app.use( express.errorHandler( { dumpExceptions: true, showStack: true } )) 
-})
+// Start the server.
+app.start()
 
-app.configure('production', function() {
-    app.use( express.errorHandler() )
-})
 
-// Routes
-app.get('/', function(req, res) {
-    res.render('index', {
-        locals: { title: 'TE Guild chat' }
-    })
-})
+/*
+ * Load the config
+ *
+ */
 
-var port = process.env.PORT || 80
-app.listen( port )
+/*
+var cfg = undefined
 
-var io = io.listen(app)
-  , buffer = []
-  , users = {} // username to session id mapping
-  , sessions = {} // session id to data mapping
-  , handlers = {
-        'user_connected' : function(client, msg) {
-            var userName = msg.userName
-            // if the username is already taken
-            if (users[userName+'']) {
-                client.send({ event : 'user_error_duplicate', announcement : "user name " + userName + " is already taken. Please choose another."})
-                return
-            }
-            sessions[client.sessionId+''].userName = userName // map session id to username
-            users[userName+''] = client.sessionId+'' // map username to session id
-            var notice = { event : 'system_message', announcement : userName + " entered the chat room." }
-            history(notice)
-            client.broadcast(notice)
-        }
-
-        ,'user_message' : function(client, msg) {
-            var vals = msg.message
-              , userName = vals.userName
-              , userMsg = vals.message
-              , output = { event : 'user_message', 'message' : {userName : userName, message : userMsg} }
-            history(output)
-            client.broadcast(output)
-        }
-        
-        ,'user_disconnected' : function(client, msg) {
-            var userName = msg.userName
-              , notice = { event : 'system_message', announcement : userName + " left the chat room." }
-            history(notice)
-            client.broadcast(notice)
-        }
+config.configFile( cfgFileName, function( config, oldConfig ) {
+    if ( !config ) {
+        throw new Error( "Config is missing." )
     }
-
-function history(obj) {
-    buffer.push(obj)
-    if (buffer.length > 25) buffer.shift()
+    that.cfg = config
 }
+*/
 
-io.on('connection', function(client) {
-    sessions[client.sessionId+''] = {} // create the data object for this session
-    client.send({ event : 'user_message', 'buffer' : buffer })
-    var notice = { event : 'system_message', announcement: client.sessionId + ' connected' }
-    history(notice)
-    client.broadcast(notice)
-
-    client.on('message', function(message) {
-        console.log(message)
-        handlers[message.event](client, message)
-    })
-
-    client.on('disconnect', function() {
-        var username = sessions[client.sessionId+''].userName
-          , sid = client.sessionId
-          , notice = { event : 'system_message', userName : username, announcement: sid + ' disconnected' }
-        
-        handlers['user_disconnected'](client, { userName : username })
-        history(notice)
-        client.broadcast(notice)
-        delete users[username]
-        delete sessions[sid]
-    })
-})
-
-console.log( "Server listening on port %d", app.address().port )

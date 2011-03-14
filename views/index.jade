@@ -1,6 +1,6 @@
 !!! 5
 
-h1 TE Guild Chat
+h1 #{title}
 
 #chat
   p Connecting
@@ -9,3 +9,4 @@ form(id: 'form', onsubmit: 'send(); return false;')
   input(type: 'text', autocomplete: 'off', id: 'text')
   input(type: 'submit', value: 'Send')
   input(type: 'hidden', value: '', id: 'username')
+  input(type: 'hidden', value: port, id: 'tePort')
