@@ -4,8 +4,6 @@
  */
  
 var config   = require( './config' )
-  , io       = require( 'socket.io' )
-  , http     = require( 'http' )
   , app      = require( './app.js' )
 
 

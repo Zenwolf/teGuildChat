@@ -1,9 +1,22 @@
-h1 TE Guild Chat
+!!! 5
+
+meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+title #{title}
+
+- each style in styles
+    link(rel='stylesheet', type='text/css', href=style)
+
+script(src: '/js/json.js');
+script(src: '/socket.io/socket.io.js');
+script(src: '/js/main.js')
+
+h1 #{title}
 
 #chat
   p Connecting
 
-form(id: 'form', onsubmit: 'send(); return false;')
-  input(type: 'text', autocomplete: 'off', id: 'text')
+form#form(name: 'form', onsubmit: 'send(); return false;')
+  input#text(type: 'text', autocomplete: 'off', name: 'text')
   input(type: 'submit', value: 'Send')
-  input(type: 'hidden', value: '', id: 'username')
+  input#userName(type: 'hidden', value: userName, name: 'userName')
+  input#tePort(type: 'hidden', value: port, name: 'tePort')

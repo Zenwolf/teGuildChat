@@ -10,7 +10,8 @@ var express  = require( 'express' )
   , Account  = require( './models/account.js' )
   , userUtil = require( './userUtil.js' )
   , http     = require( 'http' )
-  , that     = this
+  , errors   = require( './errors.js' )
+
 
 /*
  * Application properties.
@@ -27,7 +28,7 @@ var pubDir  = __dirname + '/public' // default value, otherwise from config
  *
  */
  
-var app = express.createServer( express.static( pubDir ) )
+var app = express.createServer()
 
 /*
  * Account stuff
@@ -47,11 +48,36 @@ var loadAccount = function( req, callback ) {
  * Routes
  *
  */
-app.get('/', function(req, res) {
-    res.render('index', { title: 'TE Guild chat'
-                        , port: port
+app.get( '/', function(req, res) {
+    var errorMsg = errors[ req.query.error ]
+    res.render( 'login', { title : 'TE Guild Chat Login'
+                        , styles : { common : '/css/common.css'
+                                   , login  : '/css/login.css'
+                                   }
+                        , error  : (errorMsg) ? errorMsg : undefined
                         } )
 })
+
+
+app.get( '/chat', function(req, res) {
+    console.log( req )
+    res.render( 'chat', { title: 'TE Guild Chat'
+                       , port     : port
+                       , styles   : { common : '/css/common.css'
+                                    , chat   : '/css/style.css'
+                                    }
+                       , userName : req.query.userName
+                       } )
+})
+
+
+app.get( '/login', function() {
+    res.render( 'login', { title  : 'TE Guild Chat Login'
+                         , styles : { common : '/css/common.css'
+                                    , login  : '/css/login.css'
+                                    }
+                         } )
+} )
 
 
 /*
@@ -110,6 +136,8 @@ function configure( appCfg ) {
     app.configure( function() {
         app.set( 'views', viewDir )
         app.set( 'view engine', 'jade' )
+        app.set( 'view options', { layout : false } )
+        app.use( express.static( pubDir ) )
         app.use( express.bodyParser() )
         app.use( express.methodOverride() )
         app.use( express.cookieParser() )
@@ -154,6 +182,9 @@ exports.start = start
 
 // TODO move messaging stuff into a separate module
 // TODO refactor all this crap into separate objects.
+// TODO add timestamps
+// TODO add list of users in the chat room
+// TODO fix "foo entered the chat room" msg
 
 var io = io.listen(app)
   , buffer = []

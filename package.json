@@ -1,0 +1,14 @@
+{ "name"         : "Terminus Est Guild Chat"
+, "version"      : "v0.0.1"
+, "description"  : "Just a little guild chat app."
+, "author"       : "Zenwolf <mattjaq@yahoo.com>"
+, "dependencies" : { "express"   : "2.0.0rc"
+                   , "socket.io" : "0.6.16"
+                   , "jade"      : "0.8.1"
+                   , "connect"   : "1.0.6"
+                   , "mongoose"  : "1.1.5"
+                   , "openid"    : "0.1.4"
+                   
+                   }
+, "engines"      : { "node" : ">=0.4.0" }
+}

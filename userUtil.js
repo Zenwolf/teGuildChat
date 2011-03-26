@@ -29,13 +29,17 @@ var extensions = [ new openid.UserInterface()
                     }
                  )]
 
-var relyingParty = new openid.RelyingParty(
-    'http://localhost:8080/verify' // Verification URL (yours)
-  , null                           // Realm (optional, specifies realm for OpenID authentication)
-  , false                          // Use stateless verification
-  , false                          // Strict mode
-  , extensions                     // List of extensions to enable and include
-)
+var relyingParty = undefined
+
+function configure( verifyUrl ) {
+    relyingParty = new openid.RelyingParty(
+        'http://localhost:8080/verify' // Verification URL (yours)
+      , null                           // Realm (optional, specifies realm for OpenID authentication)
+      , false                          // Use stateless verification
+      , false                          // Strict mode
+      , extensions                     // List of extensions to enable and include
+    )
+}
 
 function isAuthenticated() {
     return authenticated
@@ -62,6 +66,7 @@ function verifyAssertion( req, callback ) {
  * Export stuff
  *
  */
-exports.isAuthenticated
-exports.authenticate
-exports.verifyAssertion
+exports.configure       = configure
+exports.isAuthenticated = isAuthenticated
+exports.authenticate    = authenticate
+exports.verifyAssertion = verifyAssertion

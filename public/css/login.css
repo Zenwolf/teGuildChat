@@ -1,0 +1,60 @@
+body {
+    background: #dedede;
+    font-family: Helvetica, Arial, sans-serif;
+    color: #444;
+}
+
+.bottom {
+    background: #666;
+    padding: 2em 0;
+}
+
+section.login {
+    margin: 2em auto;
+    width: 30em;
+    background: #444;
+    border: .1em solid #999;
+    border-radius: 1em;
+    padding: 1em 2em;
+}
+
+section.login > h2 {
+    color: #dedede;
+    display: inline-block;
+}
+
+input[type=text], input[type=password] {
+    padding: 10px;
+    font-size: 1em;
+    display: block;
+    margin-bottom: 1em;
+    background: #dedede;
+    border-radius: .4em;
+    border-width: 0;
+}
+
+input[type=submit] {
+    border: .1em solid #333;
+    padding: .7em;
+    background: #666;
+    color: #aaa;
+    font-weight: bold;
+}
+
+span.note {
+    display: inline-block;
+    color: #aaa;
+    margin-left: 1em;
+    line-height: 2em;
+}
+
+.error {
+    margin: 0 auto;
+    border: 1px solid #966;
+    background: #fee;
+    padding: .5em;
+}
+
+.error > p {
+    text-align: center;
+}

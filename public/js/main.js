@@ -1,11 +1,16 @@
 var socket = undefined
+var userName = undefined
 
-function promptUserName() {
-    return prompt("Please enter a user name")
+function getUserName() {
+    if (userName) return userName
+    userName = document.getElementById( 'userName' ).value
+    return userName
 }
 
 function message(obj) {
     var el = document.createElement('p')
+      , chat = document.getElementById( 'chat' )
+
     if ('announcement' in obj) {
         el.innerHTML = '<em>' + esc(obj.announcement) + '</em>'
     }
@@ -13,13 +18,13 @@ function message(obj) {
         var vals = obj.message
         el.innerHTML = '<b>' + esc(vals.userName) + ':</b> ' + esc(vals.message)
     }
-    document.getElementById('chat').appendChild(el)
-    document.getElementById('chat').scrollTop = 1000000
+    chat.appendChild(el)
+    chat.scrollTop = 1000000
 }
 
 function send() {
     var val = document.getElementById('text').value
-      , nameVal = document.getElementById('username').value
+      , nameVal = getUserName()
       , userName = (nameVal === '') ? 'Default' : nameVal
 
     socket.send({ event : 'user_message', message : {'userName' : userName, 'message' : val} })
@@ -28,12 +33,12 @@ function send() {
 }
 
 function esc(msg) {
-  return String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    return String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-function handleUserName() {
-    var input = document.getElementById('username').value = promptUserName()
-    socket.send({ event : 'user_connected', userName : input, announcement : input + " entered the chat room." })
+function sendUserName() {
+    var userName = getUserName()
+    socket.send({ event : 'user_connected', userName : userName, announcement : userName + " entered the chat room." })
 }
 
 function setUp() {
@@ -43,7 +48,8 @@ function setUp() {
     socket.on('message', function(obj) {
         if (obj.event === 'user_error_duplicate') {
             message(obj)
-            handleUserName()
+            // send user back to login page with message.
+            window.location.href = '/?error=dupe'
             return
         }
         if ('buffer' in obj) {
@@ -59,7 +65,7 @@ function setUp() {
         }
     })
 
-    handleUserName()
+    sendUserName()
 }
 
 document.addEventListener( "DOMContentLoaded", setUp, false)
