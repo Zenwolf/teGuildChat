@@ -1,10 +1,7 @@
 var socket = undefined
-var userName = undefined
 
 function getUserName() {
-    if (userName) return userName
-    userName = document.getElementById( 'userName' ).value
-    return userName
+    return document.getElementById( 'userName' ).value
 }
 
 function message(obj) {
@@ -38,7 +35,7 @@ function esc(msg) {
 
 function sendUserName() {
     var userName = getUserName()
-    socket.send({ event : 'user_connected', userName : userName, announcement : userName + " entered the chat room." })
+    socket.send({ event : 'user_connected', 'userName' : userName, announcement : userName + " entered the chat room." })
 }
 
 function setUp() {
