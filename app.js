@@ -230,9 +230,9 @@ function history(obj) {
 io.on('connection', function(client) {
     sessions[client.sessionId+''] = {} // create the data object for this session
     client.send({ event : 'user_message', 'buffer' : buffer })
-//    var notice = { event : 'system_message', announcement: client.sessionId + ' connected' }
+    var notice = { event : 'system_message', announcement: client.sessionId + ' connected' }
 //    history(notice)
-//    client.broadcast(notice)
+    client.broadcast(notice)
 
     client.on('message', function(message) {
         console.log(message)
@@ -242,11 +242,11 @@ io.on('connection', function(client) {
     client.on('disconnect', function() {
         var username = sessions[client.sessionId+''].userName
           , sid = client.sessionId
-//          , notice = { event : 'system_message', userName : username, announcement: sid + ' disconnected' }
+          , notice = { event : 'system_message', 'userName' : username, 'announcement' : sid + ' disconnected' }
         
         handlers['user_disconnected'](client, { userName : username })
 //        history(notice)
-//        client.broadcast(notice)
+        client.broadcast(notice)
         delete users[username]
         delete sessions[sid]
     })
