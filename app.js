@@ -250,4 +250,6 @@ io.on('connection', function(client) {
         delete users[username]
         delete sessions[sid]
     })
+
+    client.send( { event : 'system_init' } )
 })

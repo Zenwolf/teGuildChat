@@ -49,6 +49,9 @@ function setUp() {
             window.location.href = '/?error=dupe'
             return
         }
+        if (obj.event === 'system_init') {
+            sendUserName()
+        }
         if ('buffer' in obj) {
             document.getElementById('form').style.display='block'
             document.getElementById('chat').innerHTML = ''
@@ -61,8 +64,6 @@ function setUp() {
             message(obj)
         }
     })
-
-    sendUserName()
 }
 
 document.addEventListener( "DOMContentLoaded", setUp, false)
