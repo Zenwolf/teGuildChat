@@ -7,16 +7,15 @@ title #{title}
     link(rel='stylesheet', type='text/css', href=style)
 
 script(src: '/js/json.js');
-script(src: '/socket.io/socket.io.js');
-script(src: '/js/main.js')
+script(src: '/nowjs/now.js');
+script(src: '/js/chat.js');
 
 h1 #{title}
 
 #chat
   p Connecting
 
-form#form(name: 'form', onsubmit: 'send(); return false;')
+form#form(name: 'form', onsubmit: 'chat.msg(); return false;')
   input#text(type: 'text', autocomplete: 'off', name: 'text')
   input(type: 'submit', value: 'Send')
   input#userName(type: 'hidden', value: userName, name: 'userName')
-  input#tePort(type: 'hidden', value: port, name: 'tePort')

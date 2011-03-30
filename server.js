@@ -3,8 +3,8 @@
  *
  */
  
-var config   = require( './config' )
-  , app      = require( './app.js' )
+var config   = require( './lib/config' )
+  , app      = require( './lib/app.js' )
 
 
 /*
